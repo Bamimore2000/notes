@@ -120,22 +120,23 @@ const Page = () => {
       <div className="notes">
         {/* has to be generally fetched */}
         <div className="flex gap-3 overflow-hidden w-[90%] mx-auto">
-          {categoryTag.map((item) => {
+          {categoryTag.map((item, index) => {
             return (
               <CategoryTag
                 handleClick={handleColor}
                 setCurrent={setCurrent}
                 current={tag}
                 tag={item}
+                key={index}
               />
             );
           })}
         </div>
         <div className="secion-holder">
           {current === "all" ? (
-            newSet?.map((uniqueSet) => {
+            newSet?.map((uniqueSet, index) => {
               return (
-                <section className="">
+                <section key={index} className="">
                   <div className="section-name overflow-hidden  py-2 mt-4 border-b border-b-1 mb-4 w-[90%] mx-auto border-b-black">
                     #{uniqueSet}
                   </div>
