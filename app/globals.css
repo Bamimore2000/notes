@@ -2,32 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.card {
+  box-shadow: -2px -3px 20px 0px #8f8d8d;
+}
+
+.card-showcase {
+  transform: rotatez(354deg);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: whitesmoke;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+select.form-select option {
+  width: 90%;
+  max-width: 480px;
+}
+
+select.form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }

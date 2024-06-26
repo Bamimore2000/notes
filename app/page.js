@@ -1,113 +1,173 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import Card from "./(components)/Card";
+import CategoryTag from "./(components)/CategoryTag";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { CiSearch } from "react-icons/ci";
+import { AiOutlinePlus } from "react-icons/ai";
+import { IoPerson } from "react-icons/io5";
+import Input from "./(components)/Input";
+import { set } from "mongoose";
+
+const Page = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [current, setCurrent] = useState("all");
+  const [render, setRender] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [tag, setTag] = useState("");
+  const [categoryTag, setCategoryTag] = useState([]);
+
+  const handleColor = (tag, category) => {
+    setTag(tag);
+    setCurrent(category);
+  };
+
+  useEffect(() => {
+    try {
+      fetch("/api/notes", { cache: "no-store" })
+        .then((response) => {
+          console.log("data recieved", response);
+          return response.json();
+        })
+        .then((data) => {
+          console.log("data converted", data);
+          setCategoryTag(() => {
+            let result = data.data.filter(({ category }) => category);
+            return [...new Set(result.map((item) => item.category))];
+          });
+        });
+      console.log(categoryTag);
+    } catch (error) {
+      setError(true);
+      setLoading(false);
+      console.log("there is an error");
+    }
+  }, []);
+
+  console.log(categoryTag);
+  useEffect(() => {
+    console.log("mounted");
+    // fetch all the data
+    if (current === "all") {
+      setLoading(true);
+      try {
+        fetch("/api/notes", { cache: "no-store" })
+          .then((response) => {
+            console.log("data recieved", response);
+            return response.json();
+          })
+          .then((data) => {
+            console.log("data converted", data);
+            setRender(data.data);
+            console.log(render);
+          });
+        console.log(render);
+      } catch (error) {
+        setError(true);
+        setLoading(false);
+        console.log("there is an error");
+      }
+      // fetch all
+      // setRender
+    } else {
+      try {
+        fetch(`/api/notes?query=${current}`)
+          .then((res) => res.json())
+          .then((data) => setRender(data.data));
+      } catch (error) {}
+      // setRender
+    }
+  }, [current, open]);
+
+  const newSet = [...new Set(render?.map(({ category }) => category))];
+  console.log(newSet);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className=" relative  mt-4 max-w-[] bg-white text-black  mx-auto h-[100vh] overflow-x-hidden overflow-y-visible">
+      <Input open={open} setOpen={setOpen} />
+      <nav className="w-[90%]  mx-auto flex justify-between items-center">
+        <div className="image-name flex items-center gap-2">
+          <div className="image">
+            {" "}
+            <IoPerson size={25} />
+          </div>
+          <p>
+            Welcome back <span className="font-semibold">Sogo</span>
+          </p>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="search-notis flex gap-2 items-center">
+          <div className="search">
+            <CiSearch size={25} />
+          </div>
+          <div className="notification">
+            {" "}
+            <IoMdNotificationsOutline size={25} />
+          </div>
+        </div>
+      </nav>
+      <article className="w-[90%] mx-auto flex justify-between items-center">
+        <h1 className="font-light text-3xl my-4">Your Notes</h1>
+        <div
+          onClick={() => setOpen(true)}
+          className="plus py-2 px-2.5 rounded-lg font-bold text-xl border border-black border-solid"
         >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          <AiOutlinePlus />
+        </div>
+      </article>
+      <div className="notes">
+        {/* has to be generally fetched */}
+        <div className="flex gap-3 overflow-hidden w-[90%] mx-auto">
+          {categoryTag.map((item) => {
+            return (
+              <CategoryTag
+                handleClick={handleColor}
+                setCurrent={setCurrent}
+                current={tag}
+                tag={item}
+              />
+            );
+          })}
+        </div>
+        <div className="secion-holder">
+          {current === "all" ? (
+            newSet?.map((uniqueSet) => {
+              return (
+                <section className="">
+                  <div className="section-name overflow-hidden  py-2 mt-4 border-b border-b-1 mb-4 w-[90%] mx-auto border-b-black">
+                    #{uniqueSet}
+                  </div>
+                  <div className="wrapper-cards py-4 w-[90%] mx-auto overflow-x-scroll md:overflow-hidden">
+                    <div className="card-holder my-5  ml-4 inline-flex md:ml-4  w-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 md:w-[90%] mx-auto">
+                      {render.length > 0 &&
+                        render
+                          ?.filter((data) => data.category === uniqueSet)
+                          .map((item, index) => <Card {...item} key={index} />)}
+                    </div>
+                  </div>
+                </section>
+              );
+            })
+          ) : (
+            <section>
+              <div className="section-name">
+                <div className="tag w-[90%] mx-auto mt-4">
+                  <article>#{tag}</article>
+                </div>
+                <div className="card-holder w-[90%] mx-auto mt-4 grid grid-cols-2 md:grid-cols-4">
+                  {render.length > 0 &&
+                    render?.map((item, index) => {
+                      return <Card {...item} key={index} />;
+                    })}
+                </div>
+              </div>
+            </section>
+          )}
+        </div>
       </div>
     </main>
   );
-}
+};
+export default Page;
